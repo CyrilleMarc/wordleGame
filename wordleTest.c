@@ -91,15 +91,6 @@ void scoring(const char *wordToFind, const char *propositionWord, char ***buffer
     {
         printf("%c\n", (*bufferTab)[i][0]);
     }
-
-    // Libération de la mémoire allouée pour chaque lettre en commun
-    for (int i = 0; i < commonLetter; i++)
-    {
-        free((*bufferTab)[i]);
-    }
-
-    // Libération de la mémoire allouée pour bufferTab
-    free(*bufferTab);
 }
 int decrease_test_try(int testTry, const char *wordToFind)
 {
@@ -122,11 +113,21 @@ int decrease_test_try(int testTry, const char *wordToFind)
     return testTry;
 }
 
-int findBestWordInList(char **wordsListInArray, int sizeList)
+int findBestWordInList(char **wordsListInArray, int sizeList, char **bufferTab, char ***secondArray)
 {
+    int total = 0;
     for (int i = 0; i < sizeList; i++)
     {
-        printf("%s", wordsListInArray[i]);
+        for (int j = 0; j < 5; j++)
+        {
+            // printf("%c\n", (*bufferTab)[i]);
+            if (wordsListInArray[i][j] == (*bufferTab)[i])
+            {
+                total++;
+                
+            }
+        }
     }
+    printf("\n%d\n", total);
     return 0;
 }

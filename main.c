@@ -17,6 +17,7 @@ int main()
     char word[6] = {0};
     int testTry = 5;
     char **bufferTab = NULL;
+    char **secondArray = NULL;
 
     printf("Nombre d'essais : %d\n", testTry);
 
@@ -48,12 +49,15 @@ int main()
     }
 
     decrease_test_try(testTry, wordToFind);
-    findBestWordInList(wordsListInArray, sizeList);
+    findBestWordInList(wordsListInArray, sizeList, bufferTab, &secondArray);
+    findRandomWordInList(secondArray, sizeList, propositionWord);
+    printf("La proposition de l'ordinateur est : %s\n", propositionWord);
 
     // scoring(wordToFind, propositionWord);
     // checkThePlaceToTheGoodLetter(wordToFind, propositionWord);
     // compareWords(wordToFind, propositionWord);
     // }
-    free(wordsListInArray);
+    // free(wordsListInArray);
+    // free(bufferTab);
     return 0;
 }

@@ -1,16 +1,15 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> //malloc
 #include <string.h>
-#include <time.h>
+#include <time.h> //rand
 
-
-
-int loadFile(const char *filename, char ***wordsInListArray, int *sizeList)
+int loadFile(const char *filename, char ***wordsListInArray, int *sizeList)
 {
     FILE *file = fopen(filename, "r");
-    if (file == NULL)
+    if (NULL == file)
     {
         perror("file not found");
+        fclose(file);
         return 1;
     }
     *sizeList = 0;
@@ -19,83 +18,115 @@ int loadFile(const char *filename, char ***wordsInListArray, int *sizeList)
     {
         (*sizeList)++;
     }
-
-    *wordsInListArray = malloc((*sizeList) * sizeof(char *));
-    if (*wordsInListArray == NULL)
+    printf("La taille de la liste est de %d mots\n", *sizeList);
+    *wordsListInArray = (char **)malloc((*sizeList) * sizeof(char *));
+    if (NULL == *wordsListInArray)
     {
         perror("Failure, memory not allocated");
-        fclose(file);
         return 1;
     }
     rewind(file);
 
     for (int i = 0; i < *sizeList; ++i)
     {
-        (*wordsInListArray)[i] = malloc(strlen(word) + 1);
+        (*wordsListInArray)[i] = (char *)malloc(strlen(word) + 1);
 
-        if ((*wordsInListArray)[i] == NULL)
+        if ((*wordsListInArray)[i] == NULL)
         {
             perror("Failure, memory not allocated");
-            fclose(file);
             return 1;
         }
-        fscanf(file, "%s", (*wordsInListArray)[i]);
+        fscanf(file, "%s", (*wordsListInArray)[i]);
     }
     fclose(file);
     return 0;
 }
 
-int findRandomWordInList(char **wordsInListArray, int sizeList, char *wordToFind)
+int findRandomWordInList(char **wordsListInArray, int sizeList, char *wordToFind)
 {
     int randomNumber = rand() % sizeList;
-    strcpy(wordToFind, wordsInListArray[randomNumber]);
+    strcpy(wordToFind, wordsListInArray[randomNumber]);
     return 0;
 }
 
-int firstResult(const char *wordToFind, const char *propositionWord)
+int compareWords(const char *wordToFind, const char *propositionWord)
 {
-    int FirstResult = strcmp(wordToFind, propositionWord);
-    return FirstResult;
-}
-
-int scoring(const char *wordToFind, const char *propositionWord)
-{
-    int commonLetter = 0;
-    for (int i = 0; i < 5; ++i)
-    {
-        for (int j = 0; j < 5; ++j)
-        {
-            if (wordToFind[i] == propositionWord[j])
-            {
-                commonLetter++;
-                break;
-            }
-        }
-    }
-    return commonLetter;
-}
-
-int compareWords(const char *word, const char *propositionWord)
-{
-    if (strcmp(word, propositionWord) == 0)
+    if (strcmp(wordToFind, propositionWord) == 0)
     {
         return 0;
     }
     return 1;
 }
 
-int findBestWordInList(char **wordsInListArray, int sizeList, const char *propositionWord)
+int commonLetter = 0;
+void scoring(const char *wordToFind, const char *propositionWord, char ***bufferTab)
 {
-    for (int i = 0; i < sizeList; ++i)
-    {
-        char word[6];
-        strcpy(word, wordsInListArray[i]);
-        int commonLetter = compareWords(word, propositionWord);
+    int commonLetter = 0;
 
-        if (commonLetter == 0)
+    // Allocation mémoire pour bufferTab en fonction du nombre de lettres en commun
+    *bufferTab = (char **)malloc(5 * sizeof(char *));
+
+    for (int i = 0; i < 5; ++i)
+    {
+        if (wordToFind[i] == propositionWord[i])
         {
-            printf("word found\n");
+            printf("lettre bien placée : \x1b[32m%c\x1b[0m\n", propositionWord[i]);
         }
+        for (int j = 0; j < 5; ++j)
+        {
+            if (i != j && wordToFind[i] == propositionWord[j])
+            {
+                commonLetter++;
+                printf("%d - Lettre en commun : \x1b[32m%c\x1b[0m\n", commonLetter, propositionWord[j]);
+
+                // Allocation mémoire pour chaque lettre en commun
+                (*bufferTab)[commonLetter - 1] = (char *)malloc(sizeof(char));
+                (*bufferTab)[commonLetter - 1][0] = propositionWord[j];
+            }
+        }
+    }
+
+    // Affichage du contenu de bufferTab
+    for (int i = 0; i < commonLetter; i++)
+    {
+        printf("%c\n", (*bufferTab)[i][0]);
+    }
+
+    // Libération de la mémoire allouée pour chaque lettre en commun
+    for (int i = 0; i < commonLetter; i++)
+    {
+        free((*bufferTab)[i]);
+    }
+
+    // Libération de la mémoire allouée pour bufferTab
+    free(*bufferTab);
+}
+int decrease_test_try(int testTry, const char *wordToFind)
+{
+    testTry--;
+    switch (testTry)
+    {
+    case 1:
+        printf("essai restant : %d\n", testTry);
+        break;
+    case 0:
+        printf("Vous n'avez plus d'essai, désolé mais vous pouvez rejouer.\nLe mot à trouver était %s\n ", wordToFind);
+        break;
+    default:
+        if (testTry > 1)
+        {
+            printf("essais restants : %d\n", testTry);
+            break;
+        }
+    }
+    return testTry;
+}
+
+int findBestWordInList(char **wordsListInArray, int sizeList)
+{
+    for (int i = 0; i < sizeList; i++)
+    {
+        printf("%s", wordsListInArray[i]);
     }
     return 0;
 }
